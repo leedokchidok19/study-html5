@@ -16,8 +16,56 @@
 <h1>Web Database는 HTML을 통한 트랜잭션이다.</h1>
 <h3>
 이것은 외부에서 SQL문을 실행할 수 없다.<br>
-트랜잭션은 두 종류로 구분되는데, 읽고 쓰기위한 트랜잭션과 읽기 전용 트랜잭션이다.<br>
+트랜잭션( transaction() )은 두 종류로 구분되는데, 읽고 쓰기위한 트랜잭션( readTransaction() )과 읽기 전용 트랜잭션이다.<br>
 주의사항 : 데이터를 읽고 쓸 때 전체 데이터베이스가 잠겨버린다.<br>
 </h3>
+
+<h1>데이터베이스</h1>
+<h3>
+    <ul>
+        <li>
+           생성 : 이름, 버전, 설명, 크기를 정한다.
+        </li>
+    </ul>
+</h3>
+
+<script type="text/javascript">
+    //네임스페이스
+    var html5rocks = {};
+    html5rocks.webdb = {};
+
+    //데이터베이스 열기
+    html5rocks.webdb.db = null;
+
+    html5rocks.webdb.open = function(){
+        var dbSize = 5 * 1024 * 1024; // 5MB
+        html5rocks.webdb.db = openDatabase("Todo", "1.0", "Todo manager", dbSize);
+    }
+    
+    html5rocks.webdb.onError = function(tx, e){
+        alert('예기치 않은 오류가 발행하였습니다.: ' + e.message);
+    }
+  
+    html5rocks.webdb.onSuccess = function(tx, r) {
+        //모든 데이터를 다시 그린다.
+        html5rocks.webdb.getAllTodoItems(tx, r);
+    }
+    
+    //테이블 생성하기
+    //CREATE TABLE SQL 퀴리문을 transaction 안에 실행하여 테이블을 만들 수 있다.
+    //OnLoad 이벤트가 발행하는 지점에 테이블 생성함수를 정의했다. 테이블이 이미 존재하지 않는 경우에는 테이블이 생성된다.
+    //이 테이블의 이름은 "todo"이고 아래와 같은 3개의 컬럼을 가진다.
+    //ID-순차적으로 증가하는 컬럼
+    //todo-아이템의 몸체가 되는 텍스트 컬럼
+    //added_on 아이템이 만들어진 시간 컬럼
+    html5rocks.webdb.createtable = function(){
+        html5rocks.webdb.db.transaction(function(tx){
+            tx.executeSql('CREATE TABLE IN NOT EXISTS ' +
+                            'tod(ID INTEGER PRIMARY KEY ASC, todo TEXT, added on DATETIME)', []);
+        });
+    }
+
+  </script>
+
 </body>
 </html>
