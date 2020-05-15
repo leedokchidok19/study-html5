@@ -29,6 +29,8 @@
     </ul>
 </h3>
 
+<div><a href="http://html5.firejune.com/demo/webdb.html">참고</a></div>
+
 <script type="text/javascript">
     //네임스페이스
     var html5rocks = {};
@@ -65,6 +67,19 @@
         });
     }
 
+    //테이블에 데이터 추가하기
+    //transaction 내부에서 todo 테이블에 INSERT 쿼리를 수행해야 한다.
+    //이 때 esecuteSql은 다수의 파라미터를 가진다.
+    //그리고 SQL은 이 파라미터의 값을 컬럼에 입력하는 쿼리를 수행한다.
+    html5rocks.webdb.addTodo = function(todoText){
+        html5rocks.webdb.db.transaction(function(tx){
+            tx.executeSql('INSERT INTO todo(todo, added on) VALUES (?, ?)',
+                         [totoText, addedOn],
+                          html5rocks.webdb.onSuccess,
+                          html5rocks.webdb.onError
+                         );
+        });
+    }
   </script>
 
 </body>
