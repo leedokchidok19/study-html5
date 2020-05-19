@@ -31,7 +31,10 @@
 
 <div><a href="http://html5.firejune.com/demo/webdb.html">참고</a></div>
 
+
+
 <script type="text/javascript">
+    //변수 선언
     //네임스페이스
     var html5rocks = {};
     html5rocks.webdb = {};
@@ -80,6 +83,46 @@
                          );
         });
     }
+
+    //테이블에서 데이터 선택하기
+    //데이터베이스에 데이터가 존재한다. 이 데이터를 다시 밖으로 꺼냅니다.
+    //Web Database는 표준 SQLite SELECT 쿼리를 이용하면 된다.
+    //여기에 사용된 예제는 모두 비동기이다. transaction 또는 executeSql 호출시 데이터가 반환되지 않는다.
+    //데이터는 반드시 콜백을 통해 전달된다는 사실을 기억하자.
+    html5rocks.webdb.getAllTodoItems = function(renderFunc){
+        html5rocks.webdb.db.transaction(function(tx){
+            tx.executeSql('SELECT * FROM todo', [], renderFunc, html5rocks.webdb.onError);
+        });
+    }
+
+    //가져온 데이터 처리하기
+    //데이터를 성공적으로 가져왔다면 loadTodoItems 함수가 호출되게 합니다.
+    //onSuccess 콜백은 두개의 파라미터를 가진다. 첫 번째는 쿼리 트랜잭션이고 두 번째는 결과 묶음이다.
+    //결과 묶음은 배열이며 데이터가 담겨 있다.
+    function loadTodoItems(tx, rs){
+        var rowOutput = '';
+        for(var i=0;i<rs.rows.length;i++){
+            rowOutput += renderTodo(rs.rows.item(i));
+        }
+        var todoItems = document.getElementById('todoItems');
+        todoItems.innerHTML = rowOutput;
+    }
+    function renderTodo(row){
+        return '<li>'+row.ID+
+                '[<a onclick="html5rocks.webdb.deleteTodo('+row.ID+');">X</a>]'+
+                '</li>';
+    }
+    //그리고 ID가 "todoItems"인 DOM 요소에 할 일 목록들이 그려지는 일을 수행한다.
+
+    //테이블에서 데이터 제거하기
+    html5rocks.webdb.deleteTodo = function(id){
+        html5rocks.webdb.db.transaction(function(tx){
+           tx.executeSql('DELETE FROM todo WHERE ID=?', [id]
+                         ,loadTodoItems, html5rocks.webdb.onError); 
+        });
+    }
+
+
   </script>
 
 </body>
