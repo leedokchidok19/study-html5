@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Web Database</title>
 </head>
-<body>
+<body onload="init();">
 
 <h1>Web Database를 사용하는 대부분의 사례가 비동기 API를 사용한다.</h1>
 <h3>
@@ -29,9 +29,12 @@
     </ul>
 </h3>
 
+<form type="post" onsubmit="addTodo(); return false;">
+    <input type="text" id="todo" name="todo" placeholder="What do you need to do?" style="width: 200px;"/>
+    <input type="submit" value="Add Todo Item"/>
+</form>
+
 <div><a href="http://html5.firejune.com/demo/webdb.html">참고</a></div>
-
-
 
 <script type="text/javascript">
     //변수 선언
@@ -122,6 +125,14 @@
         });
     }
 
+    //초기화 및 HTML 구성하기
+    //페이지 로드가 완료되면, 데이터베이스를 열고, 테이블 생성하고(필요한 경우),
+    //데이터를 가져와 할 일 항목이 그려지게 합니다.
+    function init(){
+        html5rocks.webdb.open();
+        html5rocks.webdb.createtable();
+        html5rocks.webdb.getAllTodoItems(loadTodoItems);
+    }
 
   </script>
 
