@@ -1,10 +1,130 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Web Database</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
+    <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/7089c43e/cloudflare-static/rocket-loader.min.js" data-cf-settings="5867036db13b14cf0d8ea74c-|49"></script>
 <body onload="init();">
+
+<h1>Web Database Demo</h1>
+
+<script type="5867036db13b14cf0d8ea74c-text/javascript">
+    //변수 선언
+    var html5rocks = {};
+    //네임스페이스
+    html5rocks.webdb = {};
+    //데이터베이스 열기
+    html5rocks.webdb.db = null;
+  
+    html5rocks.webdb.open = function() {
+      var dbSize = 5 * 1024 * 1024; // 5MB
+      html5rocks.webdb.db = openDatabase("Todo", "1.0", "Todo manager", dbSize);
+    }
+
+    //테이블 생성하기
+    //CREATE TABLE SQL 퀴리문을 transaction 안에 실행하여 테이블을 만들 수 있다.
+    //OnLoad 이벤트가 발행하는 지점에 테이블 생성함수를 정의했다. 테이블이 이미 존재하지 않는 경우에는 테이블이 생성된다.
+    //이 테이블의 이름은 "todo"이고 아래와 같은 3개의 컬럼을 가진다.
+    //ID-순차적으로 증가하는 컬럼
+    //todo-아이템의 몸체가 되는 텍스트 컬럼
+    //added_on 아이템이 만들어진 시간 컬럼
+    html5rocks.webdb.createTable = function(){
+        var db = html5rocks.webdb.db;
+        db.transaction(function(tx) {
+            tx.executeSql("CREATE TABLE IF NOT EXISTS todo(ID INTEGER PRIMARY KEY ASC, todo TEXT, added_on DATETIME)", []);
+            });
+    }
+
+    //테이블에 데이터 추가하기
+    //transaction 내부에서 todo 테이블에 INSERT 쿼리를 수행해야 한다.
+    //이 때 esecuteSql은 다수의 파라미터를 가진다.
+    //그리고 SQL은 이 파라미터의 값을 컬럼에 입력하는 쿼리를 수행한다.
+    html5rocks.webdb.addTodo = function(todoText) {
+        var db = html5rocks.webdb.db;
+        db.transaction(function(tx){
+            var addedOn = new Date();
+                tx.executeSql("INSERT INTO todo(todo, added_on) VALUES (?,?)", 
+                                [todoText, addedOn],
+                                    function() {
+                                        html5rocks.webdb.getAllTodoItems(loadTodoItems);
+                                            },
+                                                html5rocks.webdb.onError);
+                                    });
+    }
+
+    html5rocks.webdb.onError = function(tx, e) {
+      alert("There has been an error: " + e.message);
+    }
+
+    html5rocks.webdb.onSuccess = function(tx, r) {
+        //모든 데이터를 다시 그린다.
+        //html5rocks.webdb.getAllTodoItems(tx, r);
+    }
+  
+
+    //테이블에서 데이터 선택하기
+    //데이터베이스에 데이터가 존재한다. 이 데이터를 다시 밖으로 꺼냅니다.
+    //Web Database는 표준 SQLite SELECT 쿼리를 이용하면 된다.
+    //여기에 사용된 예제는 모두 비동기이다. transaction 또는 executeSql 호출시 데이터가 반환되지 않는다.
+    //데이터는 반드시 콜백을 통해 전달된다는 사실을 기억하자.
+    html5rocks.webdb.getAllTodoItems = function(renderFunc) {
+      var db = html5rocks.webdb.db;
+      db.transaction(function(tx) {
+        tx.executeSql("SELECT * FROM todo", [], renderFunc, 
+            html5rocks.webdb.onError);
+      });
+    }
+
+    //테이블에서 데이터 제거하기
+    html5rocks.webdb.deleteTodo = function(id) {
+      var db = html5rocks.webdb.db;
+      db.transaction(function(tx){
+        tx.executeSql("DELETE FROM todo WHERE ID=?", [id],      
+            function() {
+              html5rocks.webdb.getAllTodoItems(loadTodoItems);
+            }, 
+            html5rocks.webdb.onError);
+        });
+    }
+
+    //가져온 데이터 처리하기
+    //데이터를 성공적으로 가져왔다면 loadTodoItems 함수가 호출되게 합니다.
+    //onSuccess 콜백은 두개의 파라미터를 가진다. 첫 번째는 쿼리 트랜잭션이고 두 번째는 결과 묶음이다.
+    //결과 묶음은 배열이며 데이터가 담겨 있다.
+    function loadTodoItems(tx, rs) {
+      var rowOutput = "";
+      var todoItems = document.getElementById("todoItems");
+      for (var i=0; i < rs.rows.length; i++) {
+        rowOutput += renderTodo(rs.rows.item(i));
+      }
+   
+      todoItems.innerHTML = rowOutput;
+    }
+    
+    function renderTodo(row) {
+      return "<li>" + row.todo  + " [<a href='javascript:void(0);'  onclick='html5rocks.webdb.deleteTodo(" + row.ID +");'>Delete</a>]</li>";
+    }
+    //그리고 ID가 "todoItems"인 DOM 요소에 할 일 목록들이 그려지는 일을 수행한다.
+
+    //초기화 및 HTML 구성하기
+    //페이지 로드가 완료되면, 데이터베이스를 열고, 테이블 생성하고(필요한 경우),
+    //데이터를 가져와 할 일 항목이 그려지게 합니다.
+    function init() {
+      html5rocks.webdb.open();
+      html5rocks.webdb.createTable();
+      html5rocks.webdb.getAllTodoItems(loadTodoItems);
+    }
+
+    //input 요소로부터 작성된 값을 가져와 전달하기 위한 함수가 필요합니다.
+    //html5rocks.webdb.addTodo 메서드를 호출할 함수입니다.
+    function addTodo() {
+      var todo = document.getElementById("todo"); 
+      html5rocks.webdb.addTodo(todo.value);
+      todo.value = "";
+    }
+</script>
 
 <h1>Web Database를 사용하는 대부분의 사례가 비동기 API를 사용한다.</h1>
 <h3>
@@ -29,120 +149,15 @@
     </ul>
 </h3>
 
-<form type="post" onsubmit="addTodo(); return false;">
-    <input type="text" id="todo" name="todo" placeholder="What do you need to do?" style="width: 200px;"/>
-    <input type="submit" value="Add Todo Item"/>
+<ul id="todoItems">
+</ul>
+
+<form type="post" onsubmit="if (!window.__cfRLUnblockHandlers) return false; addTodo(); return false;" data-cf-modified-5867036db13b14cf0d8ea74c-="">
+    <input type="text" id="todo" name="todo" placeholder="What do you need to do?" style="width: 200px;" />
+    <input type="submit" value="Add Todo Item" />
 </form>
 
 <div><a href="http://html5.firejune.com/demo/webdb.html">참고</a></div>
 
-<script type="text/javascript">
-    //변수 선언
-    //네임스페이스
-    var html5rocks = {};
-    html5rocks.webdb = {};
-
-    //데이터베이스 열기
-    html5rocks.webdb.db = null;
-
-    html5rocks.webdb.open = function(){
-        var dbSize = 5 * 1024 * 1024; // 5MB
-        html5rocks.webdb.db = openDatabase("Todo", "1.0", "todo manager", dbSize);
-    }
-    
-    html5rocks.webdb.onError = function(tx, e){
-        alert('예기치 않은 오류가 발행하였습니다.: ' + e.message);
-    }
-  
-    html5rocks.webdb.onSuccess = function(tx, r) {
-        //모든 데이터를 다시 그린다.
-        html5rocks.webdb.getAllTodoItems(tx, r);
-    }
-    
-    //테이블 생성하기
-    //CREATE TABLE SQL 퀴리문을 transaction 안에 실행하여 테이블을 만들 수 있다.
-    //OnLoad 이벤트가 발행하는 지점에 테이블 생성함수를 정의했다. 테이블이 이미 존재하지 않는 경우에는 테이블이 생성된다.
-    //이 테이블의 이름은 "todo"이고 아래와 같은 3개의 컬럼을 가진다.
-    //ID-순차적으로 증가하는 컬럼
-    //todo-아이템의 몸체가 되는 텍스트 컬럼
-    //added_on 아이템이 만들어진 시간 컬럼
-    html5rocks.webdb.createtable = function(){
-        html5rocks.webdb.db.transaction(function(tx){
-            tx.executeSql('CREATE TABLE IN NOT EXISTS ' +
-                            'tod(ID INTEGER PRIMARY KEY ASC, todo TEXT, added on DATETIME)', []);
-        });
-    }
-
-    //테이블에 데이터 추가하기
-    //transaction 내부에서 todo 테이블에 INSERT 쿼리를 수행해야 한다.
-    //이 때 esecuteSql은 다수의 파라미터를 가진다.
-    //그리고 SQL은 이 파라미터의 값을 컬럼에 입력하는 쿼리를 수행한다.
-    html5rocks.webdb.addTodo = function(todoText){
-        html5rocks.webdb.db.transaction(function(tx){
-            tx.executeSql('INSERT INTO todo(todo, added on) VALUES (?, ?)',
-                         [totoText, addedOn],
-                          html5rocks.webdb.onSuccess,
-                          html5rocks.webdb.onError
-                         );
-        });
-    }
-
-    //테이블에서 데이터 선택하기
-    //데이터베이스에 데이터가 존재한다. 이 데이터를 다시 밖으로 꺼냅니다.
-    //Web Database는 표준 SQLite SELECT 쿼리를 이용하면 된다.
-    //여기에 사용된 예제는 모두 비동기이다. transaction 또는 executeSql 호출시 데이터가 반환되지 않는다.
-    //데이터는 반드시 콜백을 통해 전달된다는 사실을 기억하자.
-    html5rocks.webdb.getAllTodoItems = function(renderFunc){
-        html5rocks.webdb.db.transaction(function(tx){
-            tx.executeSql('SELECT * FROM todo', [], renderFunc, html5rocks.webdb.onError);
-        });
-    }
-
-    //가져온 데이터 처리하기
-    //데이터를 성공적으로 가져왔다면 loadTodoItems 함수가 호출되게 합니다.
-    //onSuccess 콜백은 두개의 파라미터를 가진다. 첫 번째는 쿼리 트랜잭션이고 두 번째는 결과 묶음이다.
-    //결과 묶음은 배열이며 데이터가 담겨 있다.
-    function loadTodoItems(tx, rs){
-        var rowOutput = '';
-        for(var i=0;i<rs.rows.length;i++){
-            rowOutput += renderTodo(rs.rows.item(i));
-        }
-        var todoItems = document.getElementById('todoItems');
-        todoItems.innerHTML = rowOutput;
-    }
-    function renderTodo(row){
-        return '<li>'+row.ID+
-                '[<a onclick="html5rocks.webdb.deleteTodo('+row.ID+');">X</a>]'+
-                '</li>';
-    }
-    //그리고 ID가 "todoItems"인 DOM 요소에 할 일 목록들이 그려지는 일을 수행한다.
-
-    //테이블에서 데이터 제거하기
-    html5rocks.webdb.deleteTodo = function(id){
-        html5rocks.webdb.db.transaction(function(tx){
-           tx.executeSql('DELETE FROM todo WHERE ID=?', [id]
-                         ,loadTodoItems, html5rocks.webdb.onError); 
-        });
-    }
-
-    //초기화 및 HTML 구성하기
-    //페이지 로드가 완료되면, 데이터베이스를 열고, 테이블 생성하고(필요한 경우),
-    //데이터를 가져와 할 일 항목이 그려지게 합니다.
-    function init(){
-        html5rocks.webdb.open();
-        html5rocks.webdb.createtable();
-        html5rocks.webdb.getAllTodoItems(loadTodoItems);
-    }
-
-    //input 요소로부터 작성된 값을 가져와 전달하기 위한 함수가 필요합니다.
-    //html5rocks.webdb.addTodo 메서드를 호출할 함수입니다.
-    function addTodo(){
-        var todo = document.getElementById('todo');
-        html5rocks.webdb.addTodo(todo.value);
-        todo.value = '';
-    }
-    
-  </script>
-
-</body>
-</html>
+<script src="https://ajax.cloudflare.com/cdn-cgi/scripts/7089c43e/cloudflare-static/rocket-loader.min.js" data-cf-settings="5867036db13b14cf0d8ea74c-|49" defer=""></script></body>
+</html> 
