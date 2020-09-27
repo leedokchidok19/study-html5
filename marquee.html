@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>움직이는 텍스트</title>
+    <style>
+        #view {
+            width: 100vw;
+            height: 100vh;
+            font-size: 10rem;
+        }
+        section {
+            position: fixed;
+            width: 100vw;
+            top: 0;
+        }
+        section > input {
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            font-size: 1.25rem;
+        }
+        .toggle {
+            position: fixed;
+            background: aqua;
+            width: 50px;
+            height: 50px;
+            right: 1vw;
+            border-radius: 50px;
+            text-align: center;
+            line-height: 45px;
+        }
+        .hide {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <marquee id="view" bgcolor="black">marquee 태그를 이용해서 움직이는 텍스트를 만듭니다</marquee>
+    <section>
+        <input type="text" id="input_text" placeholder="여기에 입력한 글자가 나옵니다.">
+        <input type="text" id="input_color" value="white" placeholder="여기에 입력한 색상이 나옵니다.">
+        <span class="toggle">hide</span>
+    </section>
+    
+    <script>
+
+        //marquee tag
+        var view = document.getElementById('view');
+        //input#input_text tag
+        var text = document.getElementById('input_text');
+        //input#input_color tag
+        var color = document.getElementById('input_color');
+        //section tag
+        var section = document.querySelector('section');
+        //toggle button
+        var toggle_btn = document.querySelector('.toggle');
+
+        text.addEventListener('keyup', function(event){
+            view.innerHTML = event.target.value;
+        });
+        
+        color.addEventListener('blur', function(event){
+            console.log(event.target.value);
+            view.style.color = event.target.value;
+        });
+        
+        toggle_btn.addEventListener('click', function(event){
+            var section_class_name = section.className;
+            console.log('section_class_name'+section_class_name);
+            if(section_class_name.length !== 0){
+                section.classList.remove('hide');
+            }else{
+                section.classList.add('hide');
+            } 
+        });
+        
+    </script>
+</body>
+</html>
