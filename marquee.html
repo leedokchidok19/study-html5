@@ -15,7 +15,7 @@
             width: 100%;
             height: 100%;
             font-size: 10rem;
-            line-height: 50vh;
+            line-height: 75vh;
         }
         section {
             position: fixed;
@@ -24,7 +24,6 @@
         }
         section > input {
             background-color: rgba(0, 0, 0, 0);
-            color: white;
             font-size: 1.25rem;
         }
         .toggle {
@@ -74,8 +73,9 @@
             console.log(event.target.value);
             var change_text_color = event.target.value;
             view.style.color = change_text_color;
+            text.style.color = change_text_color;
             color.style.color = change_text_color;
-        });
+        });//addEventListener blur
         
         toggle_btn.addEventListener('click', function(event){
             var section_class_name = section.className;
@@ -85,7 +85,7 @@
             }else{
                 section.classList.add('hide');
             } 
-        });
+        });//addEventListener click
         
     </script>
 </body>
