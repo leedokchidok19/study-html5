@@ -39,6 +39,21 @@
         .hide {
             opacity: 0;
         }
+        #toast_message{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%);
+            background: #666;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            color: #fff;
+            padding: 15px;
+            display: none;
+        }
+        #toast_message.show{
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -48,8 +63,9 @@
         <section>
             <input type="text" id="input_text" placeholder="여기에 입력한 글자가 나옵니다.">
             <input type="text" id="input_color" value="black" placeholder="여기에 입력한 색상이 나옵니다.">
-            <span class="toggle">hide</span>
+            <span class="toggle">숨기기</span>
         </section>
+        <div id="toast_message">입력 창을 숨겼습니다.</div>
     </div>
 
     <script>
@@ -64,6 +80,8 @@
         var section = document.querySelector('section');
         //toggle button
         var toggle_btn = document.querySelector('.toggle');
+        //toast message
+        var isShow = false;
 
         text.addEventListener('keyup', function(event){
             view.innerHTML = event.target.value;
@@ -79,13 +97,25 @@
         
         toggle_btn.addEventListener('click', function(event){
             var section_class_name = section.className;
-            console.log('section_class_name'+section_class_name);
+            console.log('section_class_name :'+section_class_name);
             if(section_class_name.length !== 0){
                 section.classList.remove('hide');
             }else{
+                toast_message(isShow);
                 section.classList.add('hide');
             } 
         });//addEventListener click
+        
+        function toast_message(isShow){
+            if(isShow) return;
+            isShow = true;
+            var toast_message = document.getElementById('toast_message');
+            toast_message.classList.add('show');
+            setTimeout(function(){
+                toast_message.classList.remove('show');
+                isShow = false;
+            }, 2000);
+        }//toast_message
         
     </script>
 </body>
