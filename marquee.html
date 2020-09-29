@@ -22,9 +22,20 @@
             width: 100%;
             top: 1%;
         }
-        section > input {
+        section input {
             background-color: rgba(0, 0, 0, 0);
             font-size: 1.25rem;
+        }
+        #input_text {
+            width: 20vw;
+        }
+        .text_color {
+            border: 1px solid black;
+            padding: 3px;
+        }
+        #input_color {
+            border: none;
+            width: 10vw;
         }
         .toggle {
             position: fixed;
@@ -46,7 +57,7 @@
             transform: translate(-50%);
             background: #666;
             border-radius: 50px;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             color: #fff;
             padding: 15px;
             display: none;
@@ -61,8 +72,11 @@
     <div class="container">
         <marquee id="view" bgcolor="lavenderblush" scrollamount="40">marquee 태그를 이용해서 움직이는 텍스트를 만듭니다</marquee>
         <section>
-            <input type="text" id="input_text" placeholder="여기에 입력한 글자가 나옵니다.">
-            <input type="text" id="input_color" value="black" placeholder="여기에 입력한 색상이 나옵니다.">
+            <input type="text" id="input_text" placeholder="글자 입력칸">
+            <span class="text_color">
+                <input type="text" id="input_color" value="black" placeholder="여기에 입력한 색상이 나옵니다.">
+                <input type="color" id="input_color2">
+            </span>
             <span class="toggle">숨기기</span>
         </section>
         <div id="toast_message">입력 창을 숨겼습니다.</div>
@@ -76,6 +90,8 @@
         var text = document.getElementById('input_text');
         //input#input_color tag
         var color = document.getElementById('input_color');
+        //input#input_color2 tag
+        var color2 = document.getElementById('input_color2');
         //section tag
         var section = document.querySelector('section');
         //toggle button
@@ -93,7 +109,14 @@
             view.style.color = change_text_color;
             text.style.color = change_text_color;
             color.style.color = change_text_color;
-        });//addEventListener blur
+        });//addEventListener color blur
+        
+        color2.addEventListener('blur', function(event){
+            var change_text_color = event.target.value;
+            view.style.color = change_text_color;
+            text.style.color = change_text_color;
+            color.style.color = change_text_color;
+        });//addEventListener color2 blur
         
         toggle_btn.addEventListener('click', function(event){
             var section_class_name = section.className;
