@@ -29,11 +29,15 @@
         #input_text {
             width: 20vw;
         }
-        .text_color {
+        .text_color,
+        .background_color {
             border: 1px solid black;
+            box-sizing: border-box;
+            margin-right: 5px;
             padding: 3px;
         }
-        #input_color {
+        #input_color,
+        #input_backgroun_color {
             border: none;
             width: 10vw;
         }
@@ -77,6 +81,10 @@
                 <input type="text" id="input_color" value="black" placeholder="여기에 입력한 색상이 나옵니다.">
                 <input type="color" id="input_color2">
             </span>
+            <span class="background_color">
+                <input type="text" id="input_backgroun_color" value="black" placeholder="여기에 입력한 색상이 나옵니다.">
+                <input type="color" id="input_backgroun_color2">
+            </span>
             <span class="toggle">숨기기</span>
         </section>
         <div id="toast_message">입력 창을 숨겼습니다.</div>
@@ -98,6 +106,10 @@
         var toggle_btn = document.querySelector('.toggle');
         //toast message
         var isShow = false;
+        //input#backgroun_color tag
+        var backgroun_color = document.getElementById('input_backgroun_color');
+        //input#backgroun_color2 tag
+        var backgroun_color2 = document.getElementById('input_backgroun_color2');
 
         text.addEventListener('keyup', function(event){
             view.innerHTML = event.target.value;
@@ -139,6 +151,17 @@
                 isShow = false;
             }, 2000);
         }//toast_message
+        
+        backgroun_color.addEventListener('blur', function(event){
+            console.log(event.target.value);
+            var change_background_color = event.target.value;
+            view.style.backgroundColor = change_background_color;
+        });//addEventListener color blur
+
+        backgroun_color2.addEventListener('blur', function(event){
+            var change_background_color = event.target.value;
+            view.style.backgroundColor = change_background_color;
+        });//addEventListener color blur
         
     </script>
 </body>
