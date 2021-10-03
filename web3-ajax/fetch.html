@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <body>
+    <article>
+ 
+    </article>
+    <input type="button" value="fetch" onclick="
+     /*
+        fetch('html').then(function(response){//익명함수
+        response.text().then(function(text){
+            document.querySelector('article').innerHTML = text;
+        })
+        })
+    */
+    //Asynchronous -> Ajax의 A
+    /*
+    function callbackme(){
+        console.log('response end');
+    }
+    callbackme = function(){
+        console.log('response end');
+    }
+    */
+    //첫번째 인자로 response 객체를 줍니다
+    //fetch('html').then(callbackme);//개발자도구 Network로 확인
+    fetch('html').then(function(response){
+        if(response.status == '404'){
+            alert('Not found')
+        }
+    });
+    console.log(1);
+    console.log(2);
+    ">
+  </body>
+</html>

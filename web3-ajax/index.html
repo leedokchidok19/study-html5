@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+    <title>WEB3 - Ajax</title>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="colors.js"></script>
+</head>
+<body>
+    <h1><a href="#!welcome">WEB</a></h1>
+    <input id="night_day" type="button" value="night" onclick="nightDayHandler(this);">
+
+    <ol id="nav"></ol>
+
+    <article></article>
+
+     <script>
+         function fetchPage(name){
+             fetch(name).then(function(response){
+                 response.text().then(function(text){
+                     document.querySelector('article').innerHTML = text;
+                 })
+             });
+         }
+
+         if(location.hash){
+             fetchPage(location.hash.substr(2));
+         }else{
+             fetchPage('welcome');
+         }
+
+         fetch('list').then(function(response){
+             response.text().then(function(text){
+                 var items = text.split(',');
+                 var i = 0;
+                 var tags = '';
+                 while(i<items.length){
+                     var item = items[i];
+                     item = item.trim();
+                     var tag = '<li><a href="#!'+item+'" onclick="fetchPage(\''+item+'\')">'+item+'</a></li>';
+                     tags = tags + tag;
+                     i = i + 1;
+                 }
+                 document.querySelector('#nav').innerHTML = tags;
+             })
+         });
+    </script>
+<!--#!html : hash와 구별하기 위해 관습적으로 !를 붙인다.
+ajax는 검색엔진에 최적화가 안되어있다.
+요즘에는 pjax를 씁니다.-->
+</body>
+</html>
